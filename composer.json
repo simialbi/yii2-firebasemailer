@@ -1,0 +1,57 @@
+{
+    "name": "simialbi/yii2-firebasemailer",
+    "type": "yii2-extension",
+    "description": "A PHP-client-library for using firebase component to send push notifications.",
+    "keywords": [
+        "yii2",
+        "firebase",
+        "push",
+        "push notification"
+    ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "simialbi",
+            "email": "simi.albi@outlook.com"
+        }
+    ],
+    "support": {
+        "source": "https://github.com/simialbi/yii2-fierabsemailer",
+        "issues": "https://github.com/simialbi/yii2-fierabsemailer/issues"
+    },
+    "minimum-stability": "beta",
+    "require": {
+        "php": ">=8.2",
+        "kreait/firebase-php": "^7.16.1",
+        "yiisoft/yii2": "^2.0.20"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "simialbi\\yii2\\firebasemailer\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "yiiunit\\extensions\\firebasemailer\\": "tests"
+        }
+    },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://asset-packagist.org"
+        }
+    ],
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0.x-dev"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "yiisoft/yii2-composer": true
+        }
+    }
+}
