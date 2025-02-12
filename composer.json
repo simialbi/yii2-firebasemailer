@@ -16,8 +16,8 @@
         }
     ],
     "support": {
-        "source": "https://github.com/simialbi/yii2-fierabsemailer",
-        "issues": "https://github.com/simialbi/yii2-fierabsemailer/issues"
+        "source": "https://github.com/simialbi/yii2-firebasemailer",
+        "issues": "https://github.com/simialbi/yii2-firebasemailer/issues"
     },
     "minimum-stability": "beta",
     "require": {
