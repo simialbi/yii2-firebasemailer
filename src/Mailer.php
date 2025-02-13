@@ -4,10 +4,14 @@ namespace simialbi\yii2\firebasemailer;
 
 use Kreait\Firebase\Contract\Messaging;
 use Kreait\Firebase\Exception\FirebaseException;
+use Kreait\Firebase\Exception\Messaging\NotFound;
 use Kreait\Firebase\Exception\MessagingException;
 use Kreait\Firebase\Factory;
 use Kreait\Firebase\Messaging\MulticastSendReport;
+use Kreait\Firebase\Messaging\SendReport;
+use Yii;
 use yii\base\InvalidConfigException;
+use yii\helpers\ArrayHelper;
 use yii\mail\BaseMailer;
 
 class Mailer extends BaseMailer
@@ -33,6 +37,26 @@ class Mailer extends BaseMailer
         }
 
         parent::init();
+    }
+
+    /**
+     * Check if a token exists in the firebase
+     *
+     * @param string $token The token to check
+     *
+     * @return bool
+     */
+    public function tokenExists(string $token): bool
+    {
+        try {
+            $this->getMessaging()->getAppInstance($token);
+        } catch (NotFound $e) {
+            return false;
+        } catch (FirebaseException $e) {
+            Yii::error($e->getMessage(), __METHOD__);
+        }
+
+        return true;
     }
 
     /**
@@ -63,7 +87,12 @@ class Mailer extends BaseMailer
         /** @var MulticastSendReport $report */
         $report = $this->getMessaging()->sendAll($message->toCloudMessages());
 
-        return !$report->hasFailures();
+        // only return failed if there are failures that are not due to unknown tokens
+        $failures = $report->filter(static function (SendReport $report): bool {
+            return $report->isFailure() && !$report->messageWasSentToUnknownToken();
+        });
+
+        return !count($failures->getItems());
     }
 
     /**

@@ -3,7 +3,6 @@
 namespace simialbi\yii2\firebasemailer;
 
 use Kreait\Firebase\Messaging\CloudMessage;
-use Kreait\Firebase\Messaging\Messages;
 use Kreait\Firebase\Messaging\Notification;
 use yii\helpers\FileHelper;
 use yii\mail\BaseMessage;
@@ -30,6 +29,17 @@ class Message extends BaseMessage
      * @var Notification The notification instance
      */
     private Notification $_notification;
+
+    /**
+     * @var array The additional data to pass with the push notification (e.g. click action). Define like:
+     * ```php
+     * [
+     *     'viewTopOpen' => 'my_action',
+     *     'actionId' => 123
+     * ]
+     * ```
+     */
+    private array $_messageData = [];
 
     /**
      * {@inheritDoc}
@@ -241,21 +251,44 @@ class Message extends BaseMessage
     }
 
     /**
+     * Returns the message data that will be sent with the message.
+     *
+     * @return array
+     */
+    public function getData(): array
+    {
+        return $this->_messageData;
+    }
+
+    /**
+     * Set the message data that will be sent with the message.
+     *
+     * @param array $messageData
+     * @return self
+     */
+    public function setData(array $messageData): self
+    {
+        $this->_messageData = $messageData;
+
+        return $this;
+    }
+
+    /**
      * Get the Messages object from this configuration.
      *
-     * @return Messages
+     * @return array
      */
-    public function toCloudMessages(): Messages
+    public function toCloudMessages(): array
     {
-        $messages = new Messages();
+        $array = [];
         if (isset($this->_recipients['topic'])) {
-            $messages[] = CloudMessage::new()->withNotification($this->_notification)->toTopic($this->_recipients['topic']);
+            $array[] = CloudMessage::new()->withNotification($this->_notification)->toTopic($this->_recipients['topic'])->withData($this->_messageData);
         } else {
             foreach ($this->_recipients as $recipient) {
-                $messages[] = CloudMessage::new()->withNotification($this->_notification)->toToken($recipient);
+                $array[] = CloudMessage::new()->withNotification($this->_notification)->toToken($recipient)->withData($this->_messageData);
             }
         }
 
-        return $messages;
+        return $array;
     }
 }

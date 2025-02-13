@@ -69,6 +69,10 @@ $message = $firebase->createMessage();
 $message
     ->setSubject('My subject')
     ->setTextBody('My body\nGreetings')
+    ->setData([
+        'viewToOpen' => 'my_action',
+        'actionId' => 123
+    ])
     ->to(['topic' => 'my_topic'])
     ->to(['myFirstT0ken', 'my2ndT0ken']) // alternative ;
 
