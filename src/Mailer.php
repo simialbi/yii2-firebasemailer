@@ -7,6 +7,7 @@ use Kreait\Firebase\Exception\FirebaseException;
 use Kreait\Firebase\Exception\Messaging\NotFound;
 use Kreait\Firebase\Exception\MessagingException;
 use Kreait\Firebase\Factory;
+use Kreait\Firebase\Http\HttpClientOptions;
 use Kreait\Firebase\Messaging\MulticastSendReport;
 use Kreait\Firebase\Messaging\SendReport;
 use Yii;
@@ -25,6 +26,14 @@ class Mailer extends BaseMailer
      * @var string|array The firebase serviceAccountCredentials.json contents
      */
     public string|array $firebaseCredentials;
+
+    /**
+     * @var array The request options to set to all request.
+     * Following options are supported:
+     *  - timeout: int, the maximum number of seconds to allow request to be executed.
+     *  - proxy: string, URI specifying address of proxy server. (e.g. tcp://proxy.example.com:5100).
+     */
+    public array $requestOptions = [];
 
     /**
      * {@inheritDoc}
@@ -103,6 +112,18 @@ class Mailer extends BaseMailer
     protected function getMessaging(): Messaging
     {
         $factory = new Factory();
+
+        $requestOptions = ArrayHelper::filter($this->requestOptions, ['timeout', 'proxy']);
+        if (!empty($requestOptions)) {
+            $options = HttpClientOptions::default();
+            if (isset($requestOptions['timeout'])) {
+                $options = $options->withTimeout($requestOptions['timeout']);
+            }
+            if (isset($requestOptions['proxy'])) {
+                $options = $options->withProxy($requestOptions['proxy']);
+            }
+            $factory = $factory->withHttpClientOptions($options);
+        }
 
         return $factory->withServiceAccount($this->firebaseCredentials)->createMessaging();
     }
