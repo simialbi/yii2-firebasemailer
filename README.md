@@ -52,7 +52,7 @@ return [
                 'client_x509_cert_url' => 'https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40my_app.iam.gserviceaccount.com',
                 'universe_domain' => 'googleapis.com'
             ],
-            // requestOptions => [
+            // 'requestOptions' => [
             //    'timeout' => 20,
             //    'proxy' => 'tcp://proxy.example.com:5100'
             // ]
