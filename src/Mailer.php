@@ -84,6 +84,32 @@ class Mailer extends BaseMailer
     }
 
     /**
+     * Subscribe one or multiple FCM tokens to a topic.
+     *
+     * @param string|string[] $tokens One or multiple FCM device tokens
+     * @param string $topic The topic name to subscribe to
+     *
+     * @return array<string, array<string, string>>
+     */
+    public function subscribeToTopic(string|array $tokens, string $topic): array
+    {
+        return $this->getMessaging()->subscribeToTopic($topic, (array) $tokens);
+    }
+
+    /**
+     * Unsubscribe one or multiple FCM tokens from a topic.
+     *
+     * @param string|string[] $tokens One or multiple FCM device tokens
+     * @param string $topic The topic name to unsubscribe from
+     *
+     * @return array<string, array<string, string>>
+     */
+    public function unsubscribeFromTopic(string|array $tokens, string $topic): array
+    {
+        return $this->getMessaging()->unsubscribeFromTopic($topic, (array) $tokens);
+    }
+
+    /**
      * {@inheritDoc}
      * @throws InvalidConfigException|MessagingException|FirebaseException
      */
