@@ -2,6 +2,8 @@
 
 namespace simialbi\yii2\firebasemailer;
 
+use Kreait\Firebase\Messaging\AndroidConfig;
+use Kreait\Firebase\Messaging\ApnsConfig;
 use Kreait\Firebase\Messaging\CloudMessage;
 use Kreait\Firebase\Messaging\Notification;
 use yii\helpers\FileHelper;
@@ -40,6 +42,13 @@ class Message extends BaseMessage
      * ```
      */
     private array $_messageData = [];
+
+    /**
+     * @var bool Whether to send the message as silent (background / data only) push notification.
+     * Silent messages are sent without notification and with the necessary platform configuration
+     * to wake up the app in background (e.g. `content-available` on iOS).
+     */
+    private bool $_silent = false;
 
     /**
      * {@inheritDoc}
@@ -274,18 +283,63 @@ class Message extends BaseMessage
     }
 
     /**
+     * Returns whether the message will be sent as silent (background / data only) push notification.
+     *
+     * @return bool
+     */
+    public function getSilent(): bool
+    {
+        return $this->_silent;
+    }
+
+    /**
+     * Set whether the message should be sent as silent (background / data only) push notification.
+     * If enabled, subject, body and image are ignored and only the data is sent.
+     *
+     * @param bool $silent
+     * @return self
+     */
+    public function setSilent(bool $silent = true): self
+    {
+        $this->_silent = $silent;
+
+        return $this;
+    }
+
+    /**
      * Get the Messages object from this configuration.
      *
      * @return array
      */
     public function toCloudMessages(): array
     {
+        $message = CloudMessage::new()->withData($this->_messageData);
+        if ($this->_silent) {
+            $message = $message
+                ->withApnsConfig(ApnsConfig::fromArray([
+                    'headers' => [
+                        'apns-push-type' => 'background',
+                        'apns-priority' => '5'
+                    ],
+                    'payload' => [
+                        'aps' => [
+                            'content-available' => 1
+                        ]
+                    ]
+                ]))
+                ->withAndroidConfig(AndroidConfig::fromArray([
+                    'priority' => 'high'
+                ]));
+        } else {
+            $message = $message->withNotification($this->_notification);
+        }
+
         $array = [];
         if (isset($this->_recipients['topic'])) {
-            $array[] = CloudMessage::new()->withNotification($this->_notification)->toTopic($this->_recipients['topic'])->withData($this->_messageData);
+            $array[] = $message->toTopic($this->_recipients['topic']);
         } else {
             foreach ($this->_recipients as $recipient) {
-                $array[] = CloudMessage::new()->withNotification($this->_notification)->toToken($recipient)->withData($this->_messageData);
+                $array[] = $message->toToken($recipient);
             }
         }
 
